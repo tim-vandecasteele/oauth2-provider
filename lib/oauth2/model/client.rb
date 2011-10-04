@@ -45,8 +45,8 @@ module OAuth2
       end
       
       def generate_credentials
-        self.client_id = self.class.create_client_id
-        self.client_secret = OAuth2.random_string
+        self.client_id ||= self.class.create_client_id
+        self.client_secret ||= OAuth2.random_string
       end
     end
     
