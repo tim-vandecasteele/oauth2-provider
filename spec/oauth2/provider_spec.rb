@@ -69,7 +69,7 @@ describe OAuth2::Provider do
       
       it "immediately redirects with the code" do
         response = get(params)
-        response.code.to_i.should == 302
+        response.should be_redirect
         response['location'].should == 'https://client.example.com/cb?code=pending_code'
       end
       
@@ -78,7 +78,7 @@ describe OAuth2::Provider do
         
         it "immediately redirects with the code" do
           response = get(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=pending_code&scope=offline_access'
         end
       end
@@ -96,7 +96,7 @@ describe OAuth2::Provider do
           OAuth2::Model::Authorization.should_not_receive(:new)
           OAuth2.should_receive(:random_string).and_return('new_code')
           response = get(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=new_code'
         end
       end
@@ -119,7 +119,7 @@ describe OAuth2::Provider do
       it "immediately redirects with a new code" do
         OAuth2.should_receive(:random_string).and_return('new_code')
         response = get(params)
-        response.code.to_i.should == 302
+        response.should be_redirect
         response['location'].should == 'https://client.example.com/cb?code=new_code'
       end
       
@@ -166,7 +166,7 @@ describe OAuth2::Provider do
       
       it "redirects to the client's registered redirect_uri" do
         response = get(params)
-        response.code.to_i.should == 302
+        response.should be_redirect
         response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
       end
     end
@@ -176,7 +176,7 @@ describe OAuth2::Provider do
       
       it "redirects to the client's redirect_uri on error" do
         response = get(params)
-        response.code.to_i.should == 302
+        response.should be_redirect
         response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
       end
       
@@ -185,7 +185,7 @@ describe OAuth2::Provider do
       
         it "redirects to the client, including the state param" do
           response = get(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=foo'
         end
       end
@@ -210,7 +210,7 @@ describe OAuth2::Provider do
       
       it "redirects to the client with an error" do
         response = allow_or_deny(params)
-        response.code.to_i.should == 302
+        response.should be_redirect
         response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The+user+denied+you+access'
       end
     end
@@ -227,21 +227,21 @@ describe OAuth2::Provider do
         
         it "redirects to the client with an authorization code" do
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=foo'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=foo&scope=foo+bar'
         end
       end
@@ -256,21 +256,21 @@ describe OAuth2::Provider do
         
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb#access_token=foo'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb#access_token=foo&state=illinois'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb#access_token=foo&scope=foo+bar'
         end
       end
@@ -285,21 +285,21 @@ describe OAuth2::Provider do
         
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
+          response.should be_redirect
           response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&scope=foo+bar'
         end
       end
@@ -502,7 +502,7 @@ describe OAuth2::Provider do
         access_token = params.delete('oauth_token')
         http   = Net::HTTP.new('localhost', 8000)
         qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
-        header = {'Authorization' => "OAuth #{access_token}"}
+        header = {'Authorization' => "Bearer #{access_token}"}
         http.request_get(path + '?' + qs, header)
       end
       

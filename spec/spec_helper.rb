@@ -42,3 +42,11 @@ RSpec.configure do |config|
   end
 end
 
+# Give every HTTPRedirection object a redirect? method
+# Which makes it easy to spec should be_redirect
+require 'net/http'
+class Net::HTTPRedirection
+  def redirect?
+    true
+  end
+end
