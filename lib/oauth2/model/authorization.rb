@@ -2,8 +2,8 @@ module OAuth2
   module Model
     
     class Authorization < ActiveRecord::Base
-      set_table_name :oauth2_authorizations
-      
+      self.table_name = 'oauth2_authorizations'
+
       belongs_to :oauth2_resource_owner, :polymorphic => true
       alias :owner  :oauth2_resource_owner
       alias :owner= :oauth2_resource_owner=
